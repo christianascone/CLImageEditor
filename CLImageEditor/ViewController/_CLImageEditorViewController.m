@@ -172,7 +172,8 @@ static const CGFloat kMenuBarHeight = 80.0f;
         
         [self.view insertSubview:imageScroll atIndex:0];
         _scrollView = imageScroll;
-        [_CLImageEditorViewController setConstraintsLeading:@0 trailing:@0 top:@(y) bottom:@(-_menuView.height) height:nil width:nil parent:self.view child:imageScroll peer:nil];
+        CGFloat bottomMargin = 30;
+        [_CLImageEditorViewController setConstraintsLeading:@10 trailing:@-10 top:@(y) bottom:@(-_menuView.height-bottomMargin-y) height:nil width:nil parent:self.view child:imageScroll peer:nil];
     }
 }
 
