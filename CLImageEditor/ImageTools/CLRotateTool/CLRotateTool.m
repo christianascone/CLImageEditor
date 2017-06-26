@@ -91,7 +91,7 @@ static NSString* const kCLRotateToolCropRotate = @"cropRotateEnabled";
 
     float sliderMaxima = _fineRotationEnabled ? 0.5 : 1;
     _rotateSlider = [self sliderWithValue:0 minimumValue:-sliderMaxima maximumValue:sliderMaxima];
-    _rotateSlider.superview.center = CGPointMake(self.editor.view.width/2, self.editor.menuView.top-30);
+    _rotateSlider.superview.center = CGPointMake(self.editor.view.width/2, self.editor.menuView.top-20); // Set the bottom margin
     
     _menuScroll = [[UIScrollView alloc] initWithFrame:self.editor.menuView.frame];
     _menuScroll.backgroundColor = self.editor.menuView.backgroundColor;
@@ -236,7 +236,7 @@ static NSString* const kCLRotateToolCropRotate = @"cropRotateEnabled";
     UISlider *slider = [[UISlider alloc] initWithFrame:CGRectMake(10, 0, 260, 30)];
     
     UIView *container = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 280, slider.height)];
-    container.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.3];
+    container.backgroundColor = [UIColor clearColor];
     container.layer.cornerRadius = slider.height/2;
     
     slider.continuous = YES;
