@@ -20,11 +20,12 @@
     self = [super initWithFrame:frame];
     if (self) {
         CGFloat W = frame.size.width;
+        CGFloat iconSize = W-40;
         
-        _iconView = [[UIImageView alloc] initWithFrame:CGRectMake(10, 5, W-20, W-20)];
+        _iconView = [[UIImageView alloc] initWithFrame:CGRectMake(20, 5, iconSize, iconSize)];
         _iconView.clipsToBounds = YES;
-        _iconView.layer.cornerRadius = 5;
-        _iconView.contentMode = UIViewContentModeScaleAspectFill;
+//        _iconView.layer.cornerRadius = 5;
+        _iconView.contentMode = UIViewContentModeScaleAspectFit;
         [self addSubview:_iconView];
         
         _titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, _iconView.bottom + 5, W, 15)];

@@ -13,6 +13,7 @@
 {
     UIImageView *_iconView;
     UILabel *_titleLabel;
+    CGFloat *_padding;
 }
 
 @property (nonatomic, assign) NSString *title;

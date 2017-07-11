@@ -13,7 +13,7 @@
 #pragma mark- _CLImageEditorViewController
 
 static const CGFloat kNavBarHeight = 44.0f;
-static const CGFloat kMenuBarHeight = 80.0f;
+static const CGFloat kMenuBarHeight = 110.0f;
 
 @interface _CLImageEditorViewController()
 <CLImageToolProtocol, UINavigationBarDelegate>
@@ -38,7 +38,15 @@ static const CGFloat kMenuBarHeight = 80.0f;
     }
     return self;
 }
-
+- (void)viewWillDisappear:(BOOL)animated
+{
+    [UIApplication.sharedApplication setStatusBarStyle:UIStatusBarStyleDefault];
+    UIView *statusBar = [[[UIApplication sharedApplication] valueForKey:@"statusBarWindow"] valueForKey:@"statusBar"];
+    
+    if ([statusBar respondsToSelector:@selector(setBackgroundColor:)]) {
+        statusBar.backgroundColor = [UIColor whiteColor];
+    }
+}
 - (id)init
 {
     self = [self initWithNibName:nil bundle:nil];
@@ -81,23 +89,53 @@ static const CGFloat kMenuBarHeight = 80.0f;
 
 - (void)initNavigationBar
 {
-    UIBarButtonItem *rightBarButtonItem = nil;
-    NSString *doneBtnTitle = [CLImageEditorTheme localizedString:@"CLImageEditor_DoneBtnTitle" withDefault:nil];
+    [UIApplication.sharedApplication setStatusBarStyle:UIStatusBarStyleLightContent];
+    UIView *statusBar = [[[UIApplication sharedApplication] valueForKey:@"statusBarWindow"] valueForKey:@"statusBar"];
     
-    if(![doneBtnTitle isEqualToString:@"CLImageEditor_DoneBtnTitle"]){
-        rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:doneBtnTitle style:UIBarButtonItemStyleDone target:self action:@selector(pushedFinishBtn:)];
+    if ([statusBar respondsToSelector:@selector(setBackgroundColor:)]) {
+        statusBar.backgroundColor = [UIColor blackColor];
     }
-    else{
-        rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(pushedFinishBtn:)];
-    }
+    self.navigationController.navigationBar.translucent = NO;
+    self.navigationController.navigationBar.backgroundColor = [UIColor blackColor];
+    [self.navigationController.navigationBar setBarTintColor:[UIColor blackColor]];
+    //BTN RIGHT
+    NSString *doneBtnTitle = @"Pubblica";
+    UIButton *btr = [[UIButton alloc] init];
+    btr.frame = CGRectMake( 0,  0,  60,  30);
+    [btr setTitle:doneBtnTitle forState:UIControlStateNormal];
+    UIFont *btrFont = [UIFont fontWithName:@"EuclidFlex-Light" size:14];
+    [btr.titleLabel setFont:btrFont];
+    [btr.titleLabel setTextColor: [UIColor whiteColor]];
+    [btr addTarget:self action:@selector(pushedFinishBtn:) forControlEvents:UIControlEventTouchUpInside];
+    
+    UIBarButtonItem *rightBarButtonItem = nil;
+//    NSString *doneBtnTitle = [CLImageEditorTheme localizedString:@"CLImageEditor_DoneBtnTitle" withDefault:nil];
+    rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:btr];
+    
+//    if(![doneBtnTitle isEqualToString:@"CLImageEditor_DoneBtnTitle"]){
+//        rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:doneBtnTitle style:UIBarButtonItemStyleDone target:self action:@selector(pushedFinishBtn:)];
+//    }
+//    else{
+//        rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(pushedFinishBtn:)];
+//    }
     
     self.navigationItem.rightBarButtonItem = rightBarButtonItem;
     [self.navigationController setNavigationBarHidden:NO animated:NO];
     
     if(_navigationBar==nil){
         UINavigationItem *navigationItem  = [[UINavigationItem alloc] init];
-        navigationItem.leftBarButtonItem  = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(pushedCloseBtn:)];
+        //BTN LEFT
+        UIButton *btl = [[UIButton alloc] init];
+        btl.frame = CGRectMake( 0,  0,  30,  30);
+        UIImage *btnBackImg = [UIImage imageNamed:@"back_btn_white.png"];
+        [btl setImage:btnBackImg forState:UIControlStateNormal];
+        [btl addTarget:self action:@selector(pushedCloseBtn:) forControlEvents:UIControlEventTouchUpInside];
+        
+        navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:btl];
+        
+//        navigationItem.leftBarButtonItem  = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(pushedCloseBtn:)];
         navigationItem.rightBarButtonItem = rightBarButtonItem;
+        navigationItem.rightBarButtonItem.tintColor = self.theme.toolbarTextColor;
         
         CGFloat dy = ([UIDevice iosVersion]<7) ? 0 : MIN([UIApplication sharedApplication].statusBarFrame.size.height, [UIApplication sharedApplication].statusBarFrame.size.width);
         
@@ -122,14 +160,31 @@ static const CGFloat kMenuBarHeight = 80.0f;
         [_navigationBar popNavigationItemAnimated:NO];
     }
     else{
-        _navigationBar.topItem.title = self.title;
+        UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 100, 44)];
+        titleLabel.backgroundColor = [UIColor clearColor];
+        titleLabel.font = [UIFont fontWithName:@"EuclidFlex-Regular" size:14.0];
+        titleLabel.textColor = [UIColor whiteColor];
+        titleLabel.text = @"Cover";
+        [titleLabel setTextAlignment:NSTextAlignmentCenter];
+        _navigationBar.topItem.titleView = titleLabel;
+        
+//        [NSFontAttributeName : UIFont(name: "EuclidFlex-Regular", size: 13)!], for: .normal)
+//        [_navigationBar setTitleTextAttributes: [NSDictionary dictionaryWithObjectsAndKeys:
+//                                                               [UIColor whiteColor], NSForegroundColorAttributeName,
+//                                                               shadow, NSShadowAttributeName,
+//                                                               [UIFont fontWithName:@"EuclidFlex-Regular" size:14.0], NSFontAttributeName, nil]];
     }
     
     if([UIDevice iosVersion] < 7){
         _navigationBar.barStyle = UIBarStyleBlackTranslucent;
+    }else{
+        _navigationBar.barStyle = UIBarStyleBlack;
+//        _navigationBar.tintColor = self.theme.backgroundColor;
     }
 }
-
+- (void) back: (BOOL)animated{
+    [self.navigationController popViewControllerAnimated:animated];
+}
 - (void)initMenuScrollView
 {
     if(self.menuView==nil){
@@ -138,14 +193,17 @@ static const CGFloat kMenuBarHeight = 80.0f;
         menuScroll.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleTopMargin;
         menuScroll.showsHorizontalScrollIndicator = NO;
         menuScroll.showsVerticalScrollIndicator = NO;
+        menuScroll.scrollEnabled = NO;
+        CGFloat edgeInset = (self.view.width - (70*3) - (30*3))/2 -15;
+        [menuScroll setContentInset:UIEdgeInsetsMake(0, edgeInset, 0, edgeInset)];
         
         [self.view addSubview:menuScroll];
         self.menuView = menuScroll;
-        [_CLImageEditorViewController setConstraintsLeading:@0 trailing:@0 top:nil bottom:@0 height:@(kMenuBarHeight) width:nil parent:self.view child:menuScroll peer:nil];
+        CGFloat bottomSpace = -30;
+        [_CLImageEditorViewController setConstraintsLeading:@0 trailing:@0 top:nil bottom:@(bottomSpace) height:@(kMenuBarHeight) width:nil parent:self.view child:menuScroll peer:nil];
     }
     self.menuView.backgroundColor = [CLImageEditorTheme toolbarColor];
 }
-
 - (void)initImageScrollView
 {
     if(_scrollView==nil){
@@ -154,7 +212,8 @@ static const CGFloat kMenuBarHeight = 80.0f;
         imageScroll.showsHorizontalScrollIndicator = NO;
         imageScroll.showsVerticalScrollIndicator = NO;
         imageScroll.delegate = self;
-        imageScroll.clipsToBounds = NO;
+        imageScroll.clipsToBounds = YES;
+        imageScroll.contentMode = UIViewContentModeScaleAspectFit;
         
         CGFloat y = 0;
         if(self.navigationController){
@@ -167,13 +226,14 @@ static const CGFloat kMenuBarHeight = 80.0f;
             y = _navigationBar.bottom;
         }
         
-        imageScroll.top = y;
-        imageScroll.height = self.view.height - imageScroll.top - _menuView.height;
+//        imageScroll.top = y + 20;
+        imageScroll.frame = CGRectMake(0, 0, self.view.width - 40, self.view.width - 40);
+//        imageScroll.height = self.view.height - imageScroll.top - _menuView.height;
         
         [self.view insertSubview:imageScroll atIndex:0];
         _scrollView = imageScroll;
         CGFloat bottomMargin = 30;
-        [_CLImageEditorViewController setConstraintsLeading:@10 trailing:@-10 top:@(y) bottom:@(-_menuView.height-bottomMargin-y) height:nil width:nil parent:self.view child:imageScroll peer:nil];
+        [_CLImageEditorViewController setConstraintsLeading:@20 trailing:@-20 top:@(y + 20) bottom:@(-_menuView.height-bottomMargin-y) height:nil width:nil parent:self.view child:imageScroll peer:nil];
     }
 }
 
@@ -377,6 +437,7 @@ static const CGFloat kMenuBarHeight = 80.0f;
                          
                          CGFloat dy = ([UIDevice iosVersion]<7) ? [UIApplication sharedApplication].statusBarFrame.size.height : 0;
                          
+//                         CGSize size = (_imageView.image) ? _imageView.image.size : _imageView.frame.size;
                          CGSize size = (_imageView.image) ? _imageView.image.size : _imageView.frame.size;
                          if(size.width>0 && size.height>0){
                              CGFloat ratio = MIN(_scrollView.width / size.width, _scrollView.height / size.height);
@@ -519,8 +580,9 @@ static const CGFloat kMenuBarHeight = 80.0f;
     CGFloat W = 70;
     CGFloat H = _menuView.height;
     
+    
     int toolCount = 0;
-    CGFloat padding = 0;
+    CGFloat padding = 30;
     for(CLImageToolInfo *info in self.toolInfo.sortedSubtools){
         if(info.available){
             toolCount++;
@@ -536,7 +598,9 @@ static const CGFloat kMenuBarHeight = 80.0f;
         if(!info.available){
             continue;
         }
-        
+        if (toolCount > 3){
+            padding = 0;
+        }
         CLToolbarMenuItem *view = [CLImageEditorTheme menuItemWithFrame:CGRectMake(x+padding, 0, W, H) target:self action:@selector(tappedMenuView:) toolInfo:info];
         [_menuView addSubview:view];
         x += W+padding;
@@ -546,22 +610,24 @@ static const CGFloat kMenuBarHeight = 80.0f;
 
 - (void)resetImageViewFrame
 {
-    CGSize size = (_imageView.image) ? _imageView.image.size : _imageView.frame.size;
+//    CGSize size = (_imageView.image) ? _imageView.image.size : _imageView.frame.size;
+    CGSize size = CGSizeMake(self.view.width - 40, self.view.width - 40);
     if(size.width>0 && size.height>0){
         CGFloat ratio = MIN(_scrollView.frame.size.width / size.width, _scrollView.frame.size.height / size.height);
         CGFloat W = ratio * size.width * _scrollView.zoomScale;
         CGFloat H = ratio * size.height * _scrollView.zoomScale;
         
-        _imageView.frame = CGRectMake(MAX(0, (_scrollView.width-W)/2), MAX(0, (_scrollView.height-H)/2), W, H);
+//        _imageView.frame = CGRectMake(MAX(0, (_scrollView.width-W)/2), MAX(0, (_scrollView.height-H)/2), W, H);
+        _imageView.frame = CGRectMake(0, 0, self.view.width - 40, self.view.width - 40);
     }
 }
 
 - (void)fixZoomScaleWithAnimated:(BOOL)animated
 {
-    CGFloat minZoomScale = _scrollView.minimumZoomScale;
-    _scrollView.maximumZoomScale = 0.95*minZoomScale;
-    _scrollView.minimumZoomScale = 0.95*minZoomScale;
-    [_scrollView setZoomScale:_scrollView.minimumZoomScale animated:animated];
+//    CGFloat minZoomScale = _scrollView.minimumZoomScale;
+//    _scrollView.maximumZoomScale = 0.95*minZoomScale;
+//    _scrollView.minimumZoomScale = 0.95*minZoomScale;
+//    [_scrollView setZoomScale:_scrollView.minimumZoomScale animated:animated];
 }
 
 - (void)resetZoomScaleWithAnimated:(BOOL)animated
@@ -586,7 +652,8 @@ static const CGFloat kMenuBarHeight = 80.0f;
     _imageView.image = _originalImage;
     
     [self resetImageViewFrame];
-    [self resetZoomScaleWithAnimated:NO];
+//    [self fixZoomScaleWithAnimated:YES];
+//    [self resetZoomScaleWithAnimated:NO];
 }
 
 - (UIBarPosition)positionForBar:(id <UIBarPositioning>)bar
@@ -615,7 +682,7 @@ static const CGFloat kMenuBarHeight = 80.0f;
     [super viewDidLayoutSubviews];
     [self resetImageViewFrame];
     [self refreshToolSettings];
-    [self scrollViewDidZoom:_scrollView];
+//    [self scrollViewDidZoom:_scrollView];
 }
 
 - (UIStatusBarStyle)preferredStatusBarStyle
@@ -689,9 +756,40 @@ static const CGFloat kMenuBarHeight = 80.0f;
     [self swapNavigationBarWithEditing:editing];
     
     if(self.currentTool){
-        UINavigationItem *item  = [[UINavigationItem alloc] initWithTitle:self.currentTool.toolInfo.title];
-        item.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:[CLImageEditorTheme localizedString:@"CLImageEditor_OKBtnTitle" withDefault:@"OK"] style:UIBarButtonItemStyleDone target:self action:@selector(pushedDoneBtn:)];
-        item.leftBarButtonItem  = [[UIBarButtonItem alloc] initWithTitle:[CLImageEditorTheme localizedString:@"CLImageEditor_BackBtnTitle" withDefault:@"Back"] style:UIBarButtonItemStylePlain target:self action:@selector(pushedCancelBtn:)];
+        
+        UINavigationItem *item  = [[UINavigationItem alloc] init];
+        
+        UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 100, 44)];
+        titleLabel.backgroundColor = [UIColor clearColor];
+        titleLabel.font = [UIFont fontWithName:@"EuclidFlex-Regular" size:14.0];
+        titleLabel.textColor = [UIColor whiteColor];
+        titleLabel.text = self.currentTool.toolInfo.title;
+        [titleLabel setTextAlignment:NSTextAlignmentCenter];
+        item.titleView = titleLabel;
+
+        
+        //BTN LEFT
+        UIButton *btl = [[UIButton alloc] init];
+        btl.frame = CGRectMake( 0,  0,  30,  30);
+        UIImage *btnBackImg = [UIImage imageNamed:@"back_btn_white.png"];
+        [btl setImage:btnBackImg forState:UIControlStateNormal];
+        [btl addTarget:self action:@selector(pushedCancelBtn:) forControlEvents:UIControlEventTouchUpInside];
+        
+        //BTN RIGHT
+        NSString *doneBtnTitle = @"Fatto";
+        UIButton *btr = [[UIButton alloc] init];
+        btr.frame = CGRectMake( 0,  0,  60,  30);
+        [btr setTitle:doneBtnTitle forState:UIControlStateNormal];
+        UIFont *btrFont = [UIFont fontWithName:@"EuclidFlex-Light" size:14];
+        [btr.titleLabel setFont:btrFont];
+        [btr.titleLabel setTextColor: [UIColor whiteColor]];
+        [btr addTarget:self action:@selector(pushedDoneBtn:) forControlEvents:UIControlEventTouchUpInside];
+        UIBarButtonItem *rightBarButtonItem = nil;
+        rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:btr];
+        
+        
+        item.rightBarButtonItem = rightBarButtonItem;
+        item.leftBarButtonItem  = [[UIBarButtonItem alloc] initWithCustomView:btl];
         
         [_navigationBar pushNavigationItem:item animated:(self.navigationController==nil)];
     }
@@ -811,8 +909,8 @@ static const CGFloat kMenuBarHeight = 80.0f;
     CGFloat H = _imageView.frame.size.height;
     
     CGRect rct = _imageView.frame;
-    rct.origin.x = MAX((Ws-W)/2, 0);
-    rct.origin.y = MAX((Hs-H)/2, 0);
+//    rct.origin.x = MAX((Ws-W)/2, 0);
+//    rct.origin.y = MAX((Hs-H)/2, 0);
     _imageView.frame = rct;
 }
 

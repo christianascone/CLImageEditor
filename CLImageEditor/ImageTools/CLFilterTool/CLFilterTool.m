@@ -70,7 +70,7 @@
 
 - (void)setFilterMenu
 {
-    CGFloat W = 70;
+    CGFloat W = 100;
     CGFloat x = 0;
     
     UIImage *iconThumbnail = [_originalImage aspectFill:CGSizeMake(50*[[UIScreen mainScreen] scale], 50*[[UIScreen mainScreen] scale])];
