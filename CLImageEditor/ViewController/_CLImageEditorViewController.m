@@ -96,10 +96,10 @@ static const CGFloat kMenuBarHeight = 110.0f;
         statusBar.backgroundColor = [UIColor blackColor];
     }
     self.navigationController.navigationBar.translucent = NO;
-    self.navigationController.navigationBar.backgroundColor = [UIColor blackColor];
+    self.navigationController.navigationBar.backgroundColor = [UIColor clearColor];
     [self.navigationController.navigationBar setBarTintColor:[UIColor blackColor]];
     //BTN RIGHT
-    NSString *doneBtnTitle = @"Pubblica";
+    NSString *doneBtnTitle = @"Avanti";
     UIButton *btr = [[UIButton alloc] init];
     btr.frame = CGRectMake( 0,  0,  60,  30);
     [btr setTitle:doneBtnTitle forState:UIControlStateNormal];
@@ -142,6 +142,8 @@ static const CGFloat kMenuBarHeight = 110.0f;
         UINavigationBar *navigationBar = [[UINavigationBar alloc] initWithFrame:CGRectMake(0, dy, self.view.width, kNavBarHeight)];
         [navigationBar pushNavigationItem:navigationItem animated:NO];
         navigationBar.delegate = self;
+        [navigationBar setBarTintColor: [UIColor blackColor]];
+        [navigationBar setTranslucent:NO];
         
         if(self.navigationController){
             [self.navigationController.view addSubview:navigationBar];
