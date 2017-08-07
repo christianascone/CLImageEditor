@@ -11,6 +11,7 @@
 static NSString* const kCLClippingToolRatios = @"ratios";
 static NSString* const kCLClippingToolSwapButtonHidden = @"swapButtonHidden";
 static NSString* const kCLClippingToolRotateIconName = @"rotateIconAssetsName";
+static NSString* const kCLClippingToolMessage = @"message";
 
 static NSString* const kCLClippingToolRatioValue1 = @"value1";
 static NSString* const kCLClippingToolRatioValue2 = @"value2";
@@ -90,7 +91,8 @@ static NSString* const kCLClippingToolRatioTitleFormat = @"titleFormat";
     return @{
              kCLClippingToolRatios:[self defaultPresetRatios],
              kCLClippingToolSwapButtonHidden:[self defaultSwapButtonHidden],
-             kCLClippingToolRotateIconName:@""
+             kCLClippingToolRotateIconName:@"",
+             kCLClippingToolMessage:@""
              };
 }
 
@@ -105,6 +107,7 @@ static NSString* const kCLClippingToolRatioTitleFormat = @"titleFormat";
     }
     
     BOOL swapBtnHidden = [self.toolInfo.optionalInfo[kCLClippingToolSwapButtonHidden] boolValue];
+    NSString* message = self.toolInfo.optionalInfo[kCLClippingToolMessage];
     CGFloat buttonWidth = (swapBtnHidden) ? 0 : 70;
     
     _menuContainer = [[UIView alloc] initWithFrame:self.editor.menuView.frame];
@@ -129,6 +132,21 @@ static NSString* const kCLClippingToolRatioTitleFormat = @"titleFormat";
         [btn setImage:[self imageForKey:kCLClippingToolRotateIconName defaultImageName:@"btn_rotate.png"] forState:UIControlStateNormal];
         btn.adjustsImageWhenHighlighted = YES;
         [btnPanel addSubview:btn];
+    }else if(message != nil && [message length] != 0){
+        CGFloat padding = 50;
+        UIView *messagePanel = [[UIView alloc] initWithFrame:CGRectMake(padding, 30, _menuContainer.width - padding, _menuContainer.height)];
+        messagePanel.backgroundColor = [UIColor clearColor];
+        [_menuContainer addSubview:messagePanel];
+        
+        UILabel *label = [[UILabel alloc] init];
+        UIFont *btrFont = [UIFont fontWithName:@"EuclidFlex-Light" size:18];
+        [label setFont:btrFont];
+        label.numberOfLines = 0;
+        label.text = message;
+        label.textColor = [UIColor whiteColor];
+        label.frame = CGRectMake(padding, - padding, messagePanel.width - padding, 200);
+        label.center = CGPointMake(messagePanel.width/2, messagePanel.height/2 - 100);
+        [messagePanel addSubview:label];
     }
     
     _gridView = [[CLClippingPanel alloc] initWithSuperview:self.editor.imageView.superview frame:self.editor.imageView.frame];
