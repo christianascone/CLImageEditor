@@ -721,7 +721,8 @@ static NSString* const kCLClippingToolRatioTitleFormat = @"titleFormat";
         W = 50 * _iconView.image.size.width / maxW;
         H = 50 * _iconView.image.size.height / maxW;
     }
-    _iconView.frame = CGRectMake(center.x-W/2, center.y-H/2, W, H);
+    if(!isnan(W) && !isnan(H))
+        _iconView.frame = CGRectMake(center.x-W/2, center.y-H/2, W, H);
 }
 
 - (void)changeOrientation

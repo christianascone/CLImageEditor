@@ -394,6 +394,41 @@ static const CGFloat kMenuBarHeight = 110.0f;
     else{
         [self refreshImageView];
     }
+    
+    [self checkOnlyOneTool];
+}
+
+/**
+ Count tools with available == true.
+
+ @return count of available tools
+ */
+- (int)countAvailableTools {
+    int toolCount = 0;
+    for(CLImageToolInfo *info in self.toolInfo.sortedSubtools){
+        if(info.available){
+            toolCount++;
+        }
+    }
+    
+    return toolCount;
+}
+
+/**
+ Check if only one tool is available, and in this case it opens
+ this tool automatically.
+ */
+- (void)checkOnlyOneTool {
+    int toolCount = [self countAvailableTools];
+    // If it has only 1 tool, show it up immediately
+    if(toolCount == 1){
+        for(CLImageToolInfo *info in self.toolInfo.sortedSubtools){
+            if(!info.available){
+                continue;
+            }
+            [self setupToolWithToolInfo:info];
+        }
+    }
 }
 
 #pragma mark- View transition
@@ -606,6 +641,7 @@ static const CGFloat kMenuBarHeight = 110.0f;
         CLToolbarMenuItem *view = [CLImageEditorTheme menuItemWithFrame:CGRectMake(x+padding, 0, W, H) target:self action:@selector(tappedMenuView:) toolInfo:info];
         [_menuView addSubview:view];
         x += W+padding;
+        
     }
     _menuView.contentSize = CGSizeMake(MAX(x, _menuView.frame.size.width+1), 0);
 }
@@ -775,9 +811,14 @@ static const CGFloat kMenuBarHeight = 110.0f;
         btl.frame = CGRectMake( 0,  0,  30,  30);
         UIImage *btnBackImg = [UIImage imageNamed:@"back_btn_white.png"];
         [btl setImage:btnBackImg forState:UIControlStateNormal];
-        [btl addTarget:self action:@selector(pushedCancelBtn:) forControlEvents:UIControlEventTouchUpInside];
+        if([self countAvailableTools] == 1){
+            [btl addTarget:self action:@selector(pushedCloseBtn:) forControlEvents:UIControlEventTouchUpInside];
+        }else {
+            [btl addTarget:self action:@selector(pushedCancelBtn:) forControlEvents:UIControlEventTouchUpInside];
+        }
         
         //BTN RIGHT
+        #warning: Mocked button title
         NSString *doneBtnTitle = @"Fatto";
         UIButton *btr = [[UIButton alloc] init];
         btr.frame = CGRectMake( 0,  0,  60,  30);
@@ -785,7 +826,11 @@ static const CGFloat kMenuBarHeight = 110.0f;
         UIFont *btrFont = [UIFont fontWithName:@"EuclidFlex-Light" size:14];
         [btr.titleLabel setFont:btrFont];
         [btr.titleLabel setTextColor: [UIColor whiteColor]];
-        [btr addTarget:self action:@selector(pushedDoneBtn:) forControlEvents:UIControlEventTouchUpInside];
+        if([self countAvailableTools] == 1){
+            [btr addTarget:self action:@selector(pushedDoneBtnOnlyOneTool:) forControlEvents:UIControlEventTouchUpInside];
+        }else {
+            [btr addTarget:self action:@selector(pushedDoneBtn:) forControlEvents:UIControlEventTouchUpInside];
+        }
         UIBarButtonItem *rightBarButtonItem = nil;
         rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:btr];
         
@@ -853,6 +898,26 @@ static const CGFloat kMenuBarHeight = 110.0f;
             
             [self resetImageViewFrame];
             self.currentTool = nil;
+        }
+        self.view.userInteractionEnabled = YES;
+    }];
+}
+
+- (IBAction)pushedDoneBtnOnlyOneTool:(id)sender
+{
+    self.view.userInteractionEnabled = NO;
+    
+    [self.currentTool executeWithCompletionBlock:^(UIImage *image, NSError *error, NSDictionary *userInfo) {
+        if(error){
+            UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Error" message:error.localizedDescription preferredStyle:UIAlertControllerStyleAlert];
+            [alert addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil]];
+            [self presentViewController:alert animated:YES completion:nil];
+        }
+        else if(image){
+            _originalImage = image;
+            _imageView.image = image;
+            
+            [self pushedFinishBtn:self];
         }
         self.view.userInteractionEnabled = YES;
     }];
