@@ -12,6 +12,10 @@ static NSString* const kCLClippingToolRatios = @"ratios";
 static NSString* const kCLClippingToolSwapButtonHidden = @"swapButtonHidden";
 static NSString* const kCLClippingToolRotateIconName = @"rotateIconAssetsName";
 static NSString* const kCLClippingToolMessage = @"message";
+static NSString* const kCLClippingToolCircleRed = @"CircleRed";
+static NSString* const kCLClippingToolCircleGreen = @"CircleGreen";
+static NSString* const kCLClippingToolCircleBlue = @"CircleBlue";
+static NSString* const kCLClippingToolCircleAlpha = @"CircleAlpha";
 
 static NSString* const kCLClippingToolRatioValue1 = @"value1";
 static NSString* const kCLClippingToolRatioValue2 = @"value2";
@@ -39,6 +43,7 @@ static NSString* const kCLClippingToolRatioTitleFormat = @"titleFormat";
 @property (nonatomic, strong) CLRatio *clippingRatio;
 - (id)initWithSuperview:(UIView*)superview frame:(CGRect)frame;
 - (void)setBgColor:(UIColor*)bgColor;
+- (void)setCircleColor:(UIColor*)circleColor;
 - (void)setGridColor:(UIColor*)gridColor;
 - (void)clippingRatioDidChange;
 @end
@@ -92,7 +97,11 @@ static NSString* const kCLClippingToolRatioTitleFormat = @"titleFormat";
              kCLClippingToolRatios:[self defaultPresetRatios],
              kCLClippingToolSwapButtonHidden:[self defaultSwapButtonHidden],
              kCLClippingToolRotateIconName:@"",
-             kCLClippingToolMessage:@""
+             kCLClippingToolMessage:@"",
+             kCLClippingToolCircleRed:@(-1.0f),
+             kCLClippingToolCircleGreen:@(-1.0f),
+             kCLClippingToolCircleBlue:@(-1.0f),
+             kCLClippingToolCircleAlpha:@(1.0f)
              };
 }
 
@@ -154,6 +163,15 @@ static NSString* const kCLClippingToolRatioTitleFormat = @"titleFormat";
     _gridView.bgColor = [self.editor.view.backgroundColor colorWithAlphaComponent:0.8];
     _gridView.gridColor = [[UIColor darkGrayColor] colorWithAlphaComponent:0.8];
     _gridView.clipsToBounds = NO;
+    
+    int redColor = [self.toolInfo.optionalInfo[kCLClippingToolCircleRed] floatValue];
+    int greenColor = [self.toolInfo.optionalInfo[kCLClippingToolCircleGreen] floatValue];
+    int blueColor = [self.toolInfo.optionalInfo[kCLClippingToolCircleBlue] floatValue];
+    int alpha = [self.toolInfo.optionalInfo[kCLClippingToolCircleAlpha] floatValue];
+    if (redColor > -1 && greenColor > -1 && blueColor > -1){
+        UIColor *circlesColor = [UIColor colorWithRed:redColor/255.0f green:greenColor/255.0f blue:blueColor/255.0f alpha:alpha];
+        [_gridView setCircleColor:circlesColor];
+    }
     
     [self setCropMenu];
     
@@ -258,6 +276,7 @@ static NSString* const kCLClippingToolRatioTitleFormat = @"titleFormat";
         
         if(selectedMenu.ratio.ratio==0){
             _gridView.clippingRatio = nil;
+            _gridView.clippingRatio = selectedMenu.ratio;
         }
         else{
             _gridView.clippingRatio = selectedMenu.ratio;
@@ -436,6 +455,11 @@ static NSString* const kCLClippingToolRatioTitleFormat = @"titleFormat";
     _ltView.bgColor = _lbView.bgColor = _rtView.bgColor = _rbView.bgColor = [gridColor colorWithAlphaComponent:1];
 }
 
+- (void)setCircleColor:(UIColor *)bgColor
+{
+    _ltView.bgColor = _lbView.bgColor = _rtView.bgColor = _rbView.bgColor = bgColor;
+}
+
 - (void)setClippingRect:(CGRect)clippingRect
 {
     _clippingRect = clippingRect;
@@ -478,16 +502,21 @@ static NSString* const kCLClippingToolRatioTitleFormat = @"titleFormat";
 
 - (void)clippingRatioDidChange
 {
+    CGFloat padding = 20.0f;
     CGRect rect = self.bounds;
     if(self.clippingRatio){
-        CGFloat H = rect.size.width * self.clippingRatio.ratio;
+        CGFloat H = rect.size.width;
+        if (self.clippingRatio.ratio != 0) {
+            H = rect.size.width * self.clippingRatio.ratio;
+        }
         if(H<=rect.size.height){
             rect.size.height = H;
         }
         else{
             rect.size.width *= rect.size.height / H;
         }
-        
+        rect.size.width = rect.size.width - (padding*2);
+        rect.size.height = rect.size.height - (padding*2);
         rect.origin.x = (self.bounds.size.width - rect.size.width) / 2;
         rect.origin.y = (self.bounds.size.height - rect.size.height) / 2;
     }
