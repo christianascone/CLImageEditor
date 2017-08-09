@@ -654,9 +654,19 @@ static const CGFloat kMenuBarHeight = 110.0f;
         CGFloat ratio = MIN(_scrollView.frame.size.width / size.width, _scrollView.frame.size.height / size.height);
         CGFloat W = ratio * size.width * _scrollView.zoomScale;
         CGFloat H = ratio * size.height * _scrollView.zoomScale;
-        
+        CGFloat ratioImage = _imageView.image.size.width / _imageView.image.size.height;
 //        _imageView.frame = CGRectMake(MAX(0, (_scrollView.width-W)/2), MAX(0, (_scrollView.height-H)/2), W, H);
-        _imageView.frame = CGRectMake(0, 0, self.view.width - 40, self.view.width - 40);
+        if(ratioImage < 1){
+            CGFloat newWidth = ratioImage * (self.view.width - 40);
+            CGFloat newX = (self.view.width - 40 - newWidth) / 2;
+            _imageView.frame = CGRectMake(newX, 0, newWidth, self.view.width - 40);
+        }else if (ratioImage > 1) {
+            CGFloat newHeight = (self.view.width - 40) / ratioImage;
+            CGFloat newY = (self.view.width - 40 - newHeight) / 2;
+            _imageView.frame = CGRectMake(0, newY, self.view.width - 40, newHeight);
+        }else {
+            _imageView.frame = CGRectMake(0, 0, self.view.width - 40, self.view.width - 40);
+        }
     }
 }
 
@@ -915,7 +925,7 @@ static const CGFloat kMenuBarHeight = 110.0f;
         }
         else if(image){
             _originalImage = image;
-            _imageView.image = image;
+            //_imageView.image = image;
             
             [self pushedFinishBtn:self];
         }
