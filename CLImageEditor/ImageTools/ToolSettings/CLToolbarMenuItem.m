@@ -28,6 +28,28 @@
         _iconView.contentMode = UIViewContentModeScaleAspectFit;
         [self addSubview:_iconView];
         
+        _titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, _iconView.bottom + 25, W, 15)];
+        _titleLabel.backgroundColor = [UIColor clearColor];
+        _titleLabel.textColor = [CLImageEditorTheme toolbarTextColor];
+        _titleLabel.font = [CLImageEditorTheme toolbarTextFont];
+        _titleLabel.textAlignment = NSTextAlignmentCenter;
+        [self addSubview:_titleLabel];
+    }
+    return self;
+}
+- (id)initFiltersWithFrame:(CGRect)frame
+{
+    self = [super initWithFrame:frame];
+    if (self) {
+        CGFloat W = frame.size.width;
+        CGFloat iconSize = W-10;
+        
+        _iconView = [[UIImageView alloc] initWithFrame:CGRectMake(5, 5, iconSize, iconSize)];
+        _iconView.clipsToBounds = YES;
+        //        _iconView.layer.cornerRadius = 5;
+        _iconView.contentMode = UIViewContentModeScaleAspectFit;
+        [self addSubview:_iconView];
+        
         _titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, _iconView.bottom + 5, W, 15)];
         _titleLabel.backgroundColor = [UIColor clearColor];
         _titleLabel.textColor = [CLImageEditorTheme toolbarTextColor];
@@ -37,10 +59,14 @@
     }
     return self;
 }
-
 - (id)initWithFrame:(CGRect)frame target:(id)target action:(SEL)action toolInfo:(CLImageToolInfo*)toolInfo
 {
-    self = [self initWithFrame:frame];
+    if ([NSStringFromSelector(action) isEqual:@"tappedFilterPanel:"]){
+        self = [self initFiltersWithFrame: frame];
+    }else{
+        self = [self initWithFrame:frame];
+    }
+    
     if(self){
         UITapGestureRecognizer *gesture = [[UITapGestureRecognizer alloc] initWithTarget:target action:action];
         [self addGestureRecognizer:gesture];

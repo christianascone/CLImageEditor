@@ -70,10 +70,11 @@
 
 - (void)setFilterMenu
 {
-    CGFloat W = 100;
+    CGFloat W = 70;
     CGFloat x = 0;
     
     UIImage *iconThumbnail = [_originalImage aspectFill:CGSizeMake(50*[[UIScreen mainScreen] scale], 50*[[UIScreen mainScreen] scale])];
+//    [_originalImage aspectFill:CGSizeMake(50*[[UIScreen mainScreen] scale], 50*[[UIScreen mainScreen] scale])];
     
     for(CLImageToolInfo *info in self.toolInfo.sortedSubtools){
         if(!info.available){

@@ -84,7 +84,9 @@ static const CGFloat kMenuBarHeight = 110.0f;
 {
     [_navigationBar removeFromSuperview];
 }
-
+- (BOOL)prefersStatusBarHidden{
+    return true;
+}
 #pragma mark- Custom initialization
 
 - (void)initNavigationBar
@@ -201,7 +203,7 @@ static const CGFloat kMenuBarHeight = 110.0f;
         
         [self.view addSubview:menuScroll];
         self.menuView = menuScroll;
-        CGFloat bottomSpace = -30;
+        CGFloat bottomSpace = 0;
         [_CLImageEditorViewController setConstraintsLeading:@0 trailing:@0 top:nil bottom:@(bottomSpace) height:@(kMenuBarHeight) width:nil parent:self.view child:menuScroll peer:nil];
     }
     self.menuView.backgroundColor = [CLImageEditorTheme toolbarColor];
@@ -229,13 +231,13 @@ static const CGFloat kMenuBarHeight = 110.0f;
         }
         
 //        imageScroll.top = y + 20;
-        imageScroll.frame = CGRectMake(0, 0, self.view.width - 40, self.view.width - 40);
+        imageScroll.frame = CGRectMake(0, 0, self.view.width, self.view.width);
 //        imageScroll.height = self.view.height - imageScroll.top - _menuView.height;
         
         [self.view insertSubview:imageScroll atIndex:0];
         _scrollView = imageScroll;
         CGFloat bottomMargin = 30;
-        [_CLImageEditorViewController setConstraintsLeading:@20 trailing:@-20 top:@(y + 20) bottom:@(-_menuView.height-bottomMargin-y) height:nil width:nil parent:self.view child:imageScroll peer:nil];
+        [_CLImageEditorViewController setConstraintsLeading:@0 trailing:@0 top:@(y + 20) bottom:@(-_menuView.height-bottomMargin-y+40) height:nil width:nil parent:self.view child:imageScroll peer:nil];
     }
 }
 
@@ -649,7 +651,7 @@ static const CGFloat kMenuBarHeight = 110.0f;
 - (void)resetImageViewFrame
 {
 //    CGSize size = (_imageView.image) ? _imageView.image.size : _imageView.frame.size;
-    CGSize size = CGSizeMake(self.view.width - 40, self.view.width - 40);
+    CGSize size = CGSizeMake(self.view.width, self.view.width);
     if(size.width>0 && size.height>0){
         CGFloat ratio = MIN(_scrollView.frame.size.width / size.width, _scrollView.frame.size.height / size.height);
         CGFloat W = ratio * size.width * _scrollView.zoomScale;
@@ -657,15 +659,15 @@ static const CGFloat kMenuBarHeight = 110.0f;
         CGFloat ratioImage = _imageView.image.size.width / _imageView.image.size.height;
 //        _imageView.frame = CGRectMake(MAX(0, (_scrollView.width-W)/2), MAX(0, (_scrollView.height-H)/2), W, H);
         if(ratioImage < 1){
-            CGFloat newWidth = ratioImage * (self.view.width - 40);
-            CGFloat newX = (self.view.width - 40 - newWidth) / 2;
-            _imageView.frame = CGRectMake(newX, 0, newWidth, self.view.width - 40);
+            CGFloat newWidth = ratioImage * (self.view.width);
+            CGFloat newX = (self.view.width - newWidth) / 2;
+            _imageView.frame = CGRectMake(newX, 0, newWidth, self.view.width);
         }else if (ratioImage > 1) {
-            CGFloat newHeight = (self.view.width - 40) / ratioImage;
-            CGFloat newY = (self.view.width - 40 - newHeight) / 2;
-            _imageView.frame = CGRectMake(0, newY, self.view.width - 40, newHeight);
+            CGFloat newHeight = (self.view.width) / ratioImage;
+            CGFloat newY = (self.view.width - newHeight) / 2;
+            _imageView.frame = CGRectMake(0, newY, self.view.width, newHeight);
         }else {
-            _imageView.frame = CGRectMake(0, 0, self.view.width - 40, self.view.width - 40);
+            _imageView.frame = CGRectMake(0, 0, self.view.width, self.view.width);
         }
     }
 }
@@ -745,6 +747,25 @@ static const CGFloat kMenuBarHeight = 110.0f;
     if(currentTool != _currentTool){
         [_currentTool cleanup];
         _currentTool = currentTool;
+        
+        
+        /*CGFloat y = 0;
+        if(self.navigationController){
+            if(self.navigationController.navigationBar.translucent){
+                y = self.navigationController.navigationBar.bottom;
+            }
+            y = ([UIDevice iosVersion] < 7) ? y-[UIApplication sharedApplication].statusBarFrame.size.height : y;
+        }
+        else{
+            y = _navigationBar.bottom;
+        }
+        CGFloat bottomMargin = 30;
+        
+        if (![currentTool.toolInfo.toolName  isEqual: @"CLClippingTool"]){
+            _scrollView.bounds = CGRectMake(0, 0, _scrollView.bounds.size.width, _scrollView.bounds.size.height);
+        }else{
+            _scrollView.bounds = CGRectMake(5, 5, _scrollView.bounds.size.width - 10, _scrollView.bounds.size.height - 10);
+        }*/
         [_currentTool setup];
         
         [self swapToolBarWithEditing:(_currentTool!=nil)];

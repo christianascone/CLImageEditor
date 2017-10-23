@@ -405,12 +405,13 @@ static NSString* const kCLClippingToolRatioTitleFormat = @"titleFormat";
     [view addGestureRecognizer:panGesture];
     
     [self.superview addSubview:view];
-    
+    [self.superview bringSubviewToFront:view];
     return view;
 }
 
 - (id)initWithSuperview:(UIView*)superview frame:(CGRect)frame
 {
+    
     self = [super initWithFrame:frame];
     if(self){
         [superview addSubview:self];
@@ -419,8 +420,8 @@ static NSString* const kCLClippingToolRatioTitleFormat = @"titleFormat";
         _gridLayer.frame = self.bounds;
         _gridLayer.bgColor   = [UIColor colorWithWhite:1 alpha:0.6];
         _gridLayer.gridColor = [UIColor colorWithWhite:0 alpha:0.6];
-        [self.layer addSublayer:_gridLayer];
-        
+//        [self.layer addSublayer:_gridLayer];
+        [self.layer insertSublayer:_gridLayer above:self.layer];
         _ltView = [self clippingCircleWithTag:0];
         _lbView = [self clippingCircleWithTag:1];
         _rtView = [self clippingCircleWithTag:2];
